@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>PMB UNPAS 2026</title>
+  <link rel="icon" href="https://lh3.googleusercontent.com/d/1tftiuUd5aodCWQ6o50Eg47emj8PuIvP0">
+  <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1tftiuUd5aodCWQ6o50Eg47emj8PuIvP0">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* Fallback dulu (vh/vw — Chrome 20+), lalu clamp() override untuk browser modern */
+    html { font-size: 1.35vh; font-size: clamp(13px, 1.35vh, 22px); }
+
+    /* --hdr/--ftr: fixed fallback untuk old WebView, override via @supports */
+    :root {
+      --hdr: 88px;
+      --ftr: 58px;
+      --p0: #2c1f18;
+      --p1: #3F3631;
+      --p2: #5a4c43;
+      --p3: #6B5B51;
+      --p4: #a08c83;
+      --cream: #F3EFEC;
+      --gold:  #f5a623;
+      --gold2: #d48f1a;
+      --teal:  #14B8A6;
+      --fh:    #D32F2F;
+      --fisip: #1e4b8c;
+      --ft:    #E65100;
+      --feb:   #FFEB3B;
+      --fkip:  #2e7d32;
+      --fiss:  #5e35b1;
+      --fk:    #1b5e20;
+      --pasca: #0277bd;
+    }
+
+    @supports (font-size: clamp(1px, 1vw, 2px)) {
+      :root { --hdr: clamp(60px, 7vh, 88px); --ftr: clamp(38px, 4.5vh, 58px); }
+    }
+
+    html {
+      height: 100%; height: 100dvh;
+    }
+    html, body {
+      width: 100vw;
+      height: 100vh; height: 100dvh;
+      min-height: -webkit-fill-available;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background: var(--p0);
+    }
+
+    /* ══════════════ HEADER ══════════════ */
+    .tv-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--hdr);
+      background: rgba(44,31,24,.97);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center;
+      padding: 0 5vw;
+      border-bottom: 2px solid rgba(245,166,35,.25);
+    }
+    .tv-header .logo {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .tv-header .logo-badge {
+      height: 4.5vh; height: clamp(30px, 4.5vh, 52px); width: auto; object-fit: contain;
+    }
+    .tv-header .logo-badge-u {
+      width: 4.5vh; width: clamp(30px, 4.5vh, 52px);
+      height: 4.5vh; height: clamp(30px, 4.5vh, 52px);
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      display: none; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 900; color: white; flex-shrink: 0;
+    }
+    .tv-header .logo-text { font-size: 1rem; font-weight: 800; color: white; }
+    .tv-header .logo-text span { color: var(--gold); }
+    .tv-header .logo-sub { font-size: .68rem; color: rgba(255,255,255,.45); margin-top: 1px; }
+    .tv-header .spacer { flex: 1; }
+    .tv-header .datetime { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .tv-header .dt-date { font-size: .65rem; color: rgba(255,255,255,.4); font-weight: 600; letter-spacing: .3px; }
+    .tv-header .clock {
+      font-size: 2.2vw; font-size: clamp(.85rem, 2.2vw, 1.3rem); font-weight: 700; color: white;
+      font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: .5px;
+    }
+
+    /* ══════════════ FOOTER ══════════════ */
+    .tv-progress {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+      height: var(--ftr);
+      background: var(--p0);
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 5vw;
+    }
+    .slide-counter {
+      font-size: .72rem; color: rgba(255,255,255,.35);
+      font-weight: 500; text-align: center;
+    }
+
+    /* ══════════════ SLIDE SYSTEM ══════════════ */
+    .slides-wrap {
+      position: fixed;
+      top: var(--hdr); left: 0; right: 0; bottom: var(--ftr);
+      overflow: hidden;
+    }
+    .slide {
+      position: absolute; inset: 0;
+      display: flex;
+      opacity: 0;
+      transition: opacity .8s cubic-bezier(.4,0,.2,1);
+      pointer-events: none;
+    }
+    .slide.active { opacity: 1; pointer-events: auto; }
+
+    /* ══ REUSABLE TITLE BAR ══ */
+    .p-title {
+      padding: 2.2vh 6vw 1.8vh; padding: clamp(14px, 2.2vh, 26px) 6vw clamp(10px, 1.8vh, 20px);
+      background: linear-gradient(135deg, var(--p0) 0%, var(--p1) 100%);
+      text-align: center; flex-shrink: 0;
+    }
+    .p-title .stag {
+      font-size: .7rem; font-weight: 700; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 4px;
+    }
+    .p-title h2 {
+      font-size: 2.8vh; font-size: clamp(1.3rem, 2.8vh, 2.2rem); font-weight: 900; color: white; line-height: 1.1;
+    }
+    .p-title h2 span { color: var(--gold); }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* ── DEV NAV ── ubah display:none ke flex untuk aktifkan kembali */
+    #btn-prev, #btn-next {
+      display: none;
+      position: fixed; top: 50%; z-index: 999;
+      transform: translateY(-50%);
+      width: 44px; height: 44px; border-radius: 50%;
+      border: none; cursor: pointer;
+      background: rgba(245,166,35,.85); color: #2c1f18;
+      font-size: 1.3rem; font-weight: 900;
+      align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,.4);
+    }
+    #btn-prev { left: 8px; }
+    #btn-next { right: 8px; }
+
+    /* ── INVISIBLE TOUCH ZONES ── */
+    .nav-zone {
+      position: fixed;
+      top: var(--hdr); bottom: var(--ftr);
+      width: 22%; z-index: 50;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nav-zone-left  { left: 0; }
+    .nav-zone-right { right: 0; }
+
+    /* ══════════════════════════
+       SLIDE 1 — HERO
+    ══════════════════════════ */
+    #s1 {
+      background: linear-gradient(170deg, var(--p0) 0%, var(--p1) 55%, var(--p2) 100%);
+      align-items: center; justify-content: center;
+      flex-direction: column; text-align: center;
+      padding: 6vw;
+      gap: 0;
+    }
+    #s1 .s1-geo {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(245,166,35,.07);
+    }
+    #s1 .geo1 { width: 70vw; height: 70vw; top: -15vw; right: -20vw; }
+    #s1 .geo2 { width: 60vw; height: 60vw; bottom: -10vw; left: -15vw; border-color: rgba(245,166,35,.05); }
+    #s1 .s1-logo {
+      height: 14vh; height: clamp(90px, 14vh, 150px); width: auto;
+      margin-bottom: 2.5vh;
+      filter: drop-shadow(0 4px 20px rgba(0,0,0,.45));
+      position: relative;
+    }
+    #s1 .s1-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 22px; border-radius: 50px;
+      background: rgba(245,166,35,.12);
+      border: 1px solid rgba(245,166,35,.3);
+      color: var(--gold); font-size: .85rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 2.5vh; position: relative;
+    }
+    #s1 .s1-eyebrow .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--teal); animation: blink 1.5s infinite;
+    }
+    #s1 h1 {
+      font-size: 9vh; font-size: clamp(3rem, 9vh, 6rem); font-weight: 900; color: white;
+      line-height: 1.05; margin-bottom: 3vh; letter-spacing: -1px; position: relative;
+    }
+    #s1 h1 span { color: var(--gold); }
+    #s1 .s1-sub {
+      font-size: 3.5vw; font-size: clamp(1.1rem, 3.5vw, 1.6rem); font-weight: 700; color: white;
+      margin-bottom: 1.5vh; letter-spacing: .5px;
+      padding: 10px 28px;
+      border-top: 2px solid rgba(245,166,35,.4);
+      border-bottom: 2px solid rgba(245,166,35,.4);
+      position: relative;
+    }
+    #s1 .s1-tagline {
+      font-size: 2vh; font-size: clamp(.9rem, 2vh, 1.2rem); font-style: italic;
+      color: rgba(255,255,255,.55); margin-bottom: 4vh; position: relative;
+    }
+    #s1 .s1-url {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 36px; border-radius: 50px;
+      background: var(--gold); color: var(--p0);
+      font-size: 3.2vw; font-size: clamp(1rem, 3.2vw, 1.3rem); font-weight: 800;
+      box-shadow: 0 6px 24px rgba(245,166,35,.35);
+      position: relative;
+    }
+
+    /* ══════════════════════════
+       SLIDE 2 — STATS
+    ══════════════════════════ */
+    #s2 {
+      background: var(--cream);
+      flex-direction: column; align-items: stretch;
+    }
+    .s2-top {
+      background: linear-gradient(160deg, var(--p0), var(--p1));
+      padding: 3.5vh 8vw 2.5vh; padding: clamp(20px, 3.5vh, 36px) 8vw clamp(14px, 2.5vh, 28px);
+      text-align: center; flex-shrink: 0;
+    }
+    .s2-top .tag {
+      font-size: 1.8vh; font-size: clamp(.9rem, 1.8vh, 1.2rem); font-weight: 700; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+    }
+    .s2-top h2 {
+      font-size: 3vh; font-size: clamp(1.5rem, 3vh, 2.4rem); font-weight: 900; color: white; line-height: 1.1;
+    }
+    .s2-top h2 span { color: var(--gold); }
+    .s2-top p { font-size: 1.7vh; font-size: clamp(.85rem, 1.7vh, 1.1rem); color: rgba(255,255,255,.45); margin-top: 8px; line-height: 1.5; }
+    .s2-grid {
+      flex: 1; display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 2px; background: #ccc;
+    }
+    .stat-block {
+      background: white;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1.8vh; gap: clamp(10px, 1.8vh, 20px); padding: 4vw;
+    }
+    .stat-block .sico { font-size: 5.5vh; font-size: clamp(2.2rem, 5.5vh, 4rem); line-height: 1; }
+    .stat-block .sval {
+      font-size: 8vh; font-size: clamp(2.8rem, 8vh, 5.5rem); font-weight: 900;
+      color: var(--p0); line-height: 1;
+    }
+    .stat-block .sval.gold { color: var(--gold2); }
+    .stat-block .sval.teal { color: var(--teal); }
+    .stat-block .slbl {
+      font-size: 2.2vh; font-size: clamp(1.05rem, 2.2vh, 1.5rem); font-weight: 700; color: var(--p2);
+      text-align: center; line-height: 1.3;
+    }
+
+    /* ══════════════════════════
+       SLIDE 3 — JALUR
+    ══════════════════════════ */
+    #s3 {
+      background: #f0ece8;
+      flex-direction: column; align-items: stretch;
+    }
+    .jalur-grid-p {
+      flex: 1; display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 3vh; gap: clamp(16px, 3vh, 36px); padding: 3.5vh 6vw; padding: clamp(20px, 3.5vh, 44px) 6vw clamp(20px, 3.5vh, 44px);
+    }
+    .jalur-card-p {
+      background: white; border-radius: 16px;
+      padding: 2vh 2vw; padding: clamp(10px, 2vh, 24px) clamp(12px, 2vw, 20px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; gap: 1vh; gap: clamp(6px, 1vh, 12px);
+      box-shadow: 0 2px 10px rgba(44,31,24,.09);
+      border-top: 3px solid var(--gold);
+    }
+    .jalur-card-p .jico { font-size: 4.5vh; font-size: clamp(2rem, 4.5vh, 3.5rem); line-height: 1; }
+    .jalur-card-p .jtitle {
+      font-size: 2vh; font-size: clamp(.95rem, 2vh, 1.3rem); font-weight: 800; color: var(--p0); line-height: 1.2;
+    }
+    .jalur-card-p .jdesc {
+      font-size: 1.8vh; font-size: clamp(.88rem, 1.8vh, 1.15rem); color: var(--p3);
+      line-height: 1.45; opacity: .9;
+    }
+
+    /* ══════════════════════════
+       SLIDE 7 — FAKULTAS
+    ══════════════════════════ */
+    #s7 {
+      background: #f0ece8;
+      flex-direction: column; align-items: stretch;
+    }
+    .fak-grid-p {
+      flex: 1; min-height: 0;
+      display: flex; flex-direction: column;
+      gap: 1.8vh; gap: clamp(10px, 1.8vh, 20px); padding: 2vh 5vw; padding: clamp(12px, 2vh, 24px) 5vw clamp(12px, 2vh, 24px);
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .fak-row-p {
+      flex: 1; min-height: 0;
+      display: flex; gap: 1.8vh; gap: clamp(10px, 1.8vh, 20px);
+    }
+    .fak-card-p {
+      flex: 1; min-width: 0;
+      background: white; border-radius: 14px;
+      padding: 1.3vh 2vw; padding: clamp(8px, 1.3vh, 16px) clamp(10px, 2vw, 16px);
+      display: flex; flex-direction: column; gap: 0.7vh; gap: clamp(4px, 0.7vh, 8px);
+      box-shadow: 0 2px 6px rgba(0,0,0,.07);
+      border-left: 5px solid transparent;
+      overflow: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .fak-card-p .fc-header {
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .fak-card-p .fc-initial {
+      font-size: 2.2vh; font-size: clamp(.95rem, 2.2vh, 1.5rem); font-weight: 900;
+      line-height: 1; letter-spacing: -.5px; flex-shrink: 0;
+    }
+    .fak-card-p .fc-name {
+      font-size: 1.08vh; font-size: clamp(.6rem, 1.08vh, .88rem); font-weight: 700; color: var(--p0);
+      line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: clip;
+    }
+    .fak-card-p .fc-prodi-list-p {
+      display: flex; flex-direction: column; gap: 0.3vh; gap: clamp(1px, 0.3vh, 3px);
+      padding-left: 4px; overflow: hidden;
+    }
+    .fak-card-p .fc-prodi-p {
+      font-size: 1.1vh; font-size: clamp(.6rem, 1.1vh, .85rem); color: var(--p3);
+      line-height: 1.35; padding-left: 8px; position: relative;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .fak-card-p .fc-prodi-p::before {
+      content: '·'; position: absolute; left: 0; color: var(--p4);
+    }
+
+    /* ══════════════════════════
+       SLIDE 8 — CARA DAFTAR
+    ══════════════════════════ */
+    #s8 {
+      background: #f0ece8;
+      flex-direction: column; align-items: stretch;
+    }
+    .cara-list-p {
+      flex: 1; display: flex; flex-direction: column;
+      padding: 3.5vh 5vw; padding: clamp(20px, 3.5vh, 44px) 5vw clamp(20px, 3.5vh, 44px);
+      gap: 3.5vh; gap: clamp(18px, 3.5vh, 40px); justify-content: center;
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .cara-step-p {
+      background: white; border-radius: 16px;
+      padding: 2.5vh 3vw; padding: clamp(14px, 2.5vh, 28px) clamp(16px, 3vw, 28px);
+      display: flex; align-items: center; gap: 2vw; gap: clamp(12px, 2vw, 20px);
+      box-shadow: 0 2px 8px rgba(44,31,24,.08);
+      border-left: 5px solid var(--gold);
+      flex: 1;
+    }
+    .cara-step-p .csn-p {
+      width: 8vh; width: clamp(52px, 8vh, 76px);
+      height: 8vh; height: clamp(52px, 8vh, 76px);
+      border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: var(--p0); font-size: 2.5vh; font-size: clamp(1.1rem, 2.5vh, 1.6rem); font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 10px rgba(245,166,35,.3);
+    }
+    .cara-step-p .csi-p { font-size: 5.5vh; font-size: clamp(2.2rem, 5.5vh, 3.6rem); line-height: 1; flex-shrink: 0; }
+    .cara-step-p .cst-p { flex: 1; min-width: 0; }
+    .cara-step-p .csh-p {
+      font-size: 2.8vh; font-size: clamp(1.2rem, 2.8vh, 1.7rem); font-weight: 800; color: var(--p0);
+    }
+    .cara-step-p .csp-p {
+      font-size: 2.2vh; font-size: clamp(1rem, 2.2vh, 1.4rem); color: var(--p3);
+      line-height: 1.4; margin-top: 6px; opacity: .9;
+    }
+
+    /* ══════════════════════════
+       SLIDE 9 — CTA / QR
+    ══════════════════════════ */
+    #s9 {
+      background: linear-gradient(170deg, var(--p0) 0%, var(--p1) 100%);
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; gap: 0;
+      padding: 3vh 5vw; padding: clamp(16px, 3vh, 40px) 5vw;
+    }
+    #s9 .cta-tag {
+      font-size: 1.8vh; font-size: clamp(.9rem, 1.8vh, 1.2rem); font-weight: 700; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 2vh; margin-bottom: clamp(12px, 2vh, 22px);
+    }
+    #s9 h2 {
+      font-size: 8vh; font-size: clamp(2.6rem, 8vh, 5rem); font-weight: 900; color: white;
+      line-height: 1.08; margin-bottom: 1.5vh; margin-bottom: clamp(10px, 1.5vh, 18px);
+    }
+    #s9 h2 span { color: var(--gold); }
+    #s9 .cta-sub {
+      font-size: 1.6vh; font-size: clamp(.82rem, 1.6vh, 1.1rem); color: rgba(255,255,255,.55);
+      margin-bottom: 4vh; margin-bottom: clamp(20px, 4vh, 44px); line-height: 1.5;
+      white-space: nowrap;
+    }
+    .qr-row-p {
+      display: flex; gap: 4vw; gap: clamp(16px, 4vw, 32px);
+      justify-content: center; width: 100%;
+    }
+    .qr-card-p {
+      background: white; border-radius: 20px;
+      padding: 2.5vh 2vw; padding: clamp(14px, 2.5vh, 28px) clamp(12px, 2vw, 20px) clamp(14px, 2.5vh, 28px);
+      display: flex; flex-direction: column; align-items: center; gap: 1.8vh; gap: clamp(10px, 1.8vh, 18px);
+      box-shadow: 0 8px 32px rgba(0,0,0,.28);
+      flex: 1; max-width: 47%;
+    }
+    .qr-card-p .qr-badge {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 14px; border-radius: 50px;
+      font-size: .75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .4px;
+    }
+    .qr-card-p .qr-badge.pmb { background: rgba(245,166,35,.15); color: #b87a10; border: 1px solid rgba(245,166,35,.35); }
+    .qr-card-p .qr-badge.wa  { background: rgba(37,211,102,.12); color: #1a8c3e; border: 1px solid rgba(37,211,102,.3); }
+    .qr-card-p .qr-img {
+      width: 90%; height: auto;
+      max-width: 36vh; max-width: clamp(160px, 36vh, 360px);
+      object-fit: contain; border-radius: 10px; background: #f5f5f5;
+    }
+    .qr-fallback-p {
+      width: 90%;
+      max-width: 36vh; max-width: clamp(160px, 36vh, 360px);
+      padding-bottom: 90%;
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      border-radius: 10px; gap: 10px;
+      background: #f7f4f1; border: 2px dashed #d4c9c2;
+    }
+    .qr-fallback-p .qf-icon { font-size: 2.2rem; line-height: 1; }
+
+    /* ══ DESKTOP / LANDSCAPE OVERRIDES ══ */
+    @media (orientation: landscape) {
+      /* Cara Daftar: step tidak stretch tinggi, konten natural, align dari atas */
+      .cara-step-p { flex: unset; min-height: 80px; }
+      .cara-list-p { justify-content: flex-start; }
+      /* Jalur: grid bisa scroll */
+      .jalur-grid-p { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+      /* Fakultas: row auto-height agar PPS tampil penuh, grid bisa scroll */
+      .fak-row-p { flex: none; }
+      .fak-card-p { overflow: visible; }
+    }
+    .qr-fallback-p .qf-main {
+      font-size: 2vh; font-size: clamp(.9rem, 2vh, 1.3rem); font-weight: 800; color: var(--p1);
+      text-align: center; word-break: break-all; padding: 0 10px;
+    }
+    .qr-fallback-p .qf-hint {
+      font-size: .65rem; color: var(--p4); text-align: center;
+      padding: 0 10px; line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Dev nav (hidden, untuk debugging aktifkan display:flex di CSS) -->
+<button id="btn-prev">&#8592;</button>
+<button id="btn-next">&#8594;</button>
+
+<!-- Invisible touch zones: klik/sentuh kiri = prev, kanan = next -->
+<div class="nav-zone nav-zone-left"  id="zone-prev"></div>
+<div class="nav-zone nav-zone-right" id="zone-next"></div>
+
+<!-- ── HEADER ── -->
+<header class="tv-header">
+  <div class="logo">
+    <img src="https://lh3.googleusercontent.com/d/1S-Saq8Q2Y2WQivKXWHi1_LLvs3pcWsyJ" alt="UNPAS" class="logo-badge" id="logo-img"
+         onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+    <div class="logo-badge-u" id="logo-fallback">U</div>
+    <div>
+      <div class="logo-text">PMB <span>UNPAS</span> 2026</div>
+      <div class="logo-sub">Universitas Pasundan</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="datetime">
+    <div class="dt-date" id="dt-date">—</div>
+    <div class="clock" id="clock">00:00:00</div>
+  </div>
+</header>
+
+<!-- ── SLIDES ── -->
+<div class="slides-wrap">
+
+  <!-- ════ SLIDE 1: HERO ════ -->
+  <div class="slide active" id="s1">
+    <div class="s1-geo geo1"></div>
+    <div class="s1-geo geo2"></div>
+    <img src="https://lh3.googleusercontent.com/d/1S-Saq8Q2Y2WQivKXWHi1_LLvs3pcWsyJ" class="s1-logo" alt="Logo UNPAS"
+         onerror="this.style.display='none';document.getElementById('s1-logo-fb').style.display='flex';">
+    <div id="s1-logo-fb" style="display:none;width:14vh;height:14vh;max-width:150px;max-height:150px;border-radius:50%;background:linear-gradient(135deg,#f5a623,#d48f1a);align-items:center;justify-content:center;font-size:3.5vh;font-weight:900;color:#2c1f18;margin-bottom:2.5vh;position:relative;">U</div>
+    <div class="s1-eyebrow"><span class="dot"></span> Tahun Akademik 2026/2027</div>
+    <h1>Penerimaan<br>Mahasiswa <span>Baru</span></h1>
+    <div class="s1-sub">Universitas Pasundan</div>
+    <div class="s1-tagline">"Tradisi Kuat, Pendidikan Tepat, Lulusan Hebat"</div>
+    <div class="s1-url">🌐 pmb.unpas.ac.id</div>
+  </div>
+
+  <!-- ════ SLIDE 2: STATS ════ -->
+  <div class="slide" id="s2">
+    <div class="s2-top">
+      <div class="tag">UNPAS dalam Angka</div>
+      <h2>Bergabung dengan <span>Keluarga Besar</span> UNPAS</h2>
+    </div>
+    <div class="s2-grid">
+      <div class="stat-block">
+        <div class="sico">👨‍🎓</div>
+        <div class="sval gold">147.336</div>
+        <div class="slbl">Mahasiswa &amp; Lulusan</div>
+      </div>
+      <div class="stat-block">
+        <div class="sico">🏛️</div>
+        <div class="sval">8</div>
+        <div class="slbl">Fakultas &amp; Pascasarjana</div>
+      </div>
+      <div class="stat-block">
+        <div class="sico">🎓</div>
+        <div class="sval">43</div>
+        <div class="slbl">Program Studi</div>
+      </div>
+      <div class="stat-block">
+        <div class="sico">🪪</div>
+        <div class="sval teal">2</div>
+        <div class="slbl">Program Profesi</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ SLIDE 3: JALUR ════ -->
+  <div class="slide" id="s3">
+    <div class="p-title">
+      <h2>6 Jalur <span>Masuk</span> UNPAS</h2>
+    </div>
+    <div class="jalur-grid-p">
+      <div class="jalur-card-p">
+        <div class="jico">📋</div>
+        <div class="jtitle">PMDK</div>
+        <div class="jdesc">Seleksi berdasarkan nilai rapor — tanpa ujian tulis</div>
+      </div>
+      <div class="jalur-card-p">
+        <div class="jico">💻</div>
+        <div class="jtitle">USM</div>
+        <div class="jdesc">Tes masuk online via CBT — bisa dari rumah, tidak perlu ke kampus</div>
+      </div>
+      <div class="jalur-card-p">
+        <div class="jico">📃</div>
+        <div class="jtitle">USM via UTBK</div>
+        <div class="jdesc">Punya skor SNBT/UTBK? Cukup upload sertifikat — tidak perlu ikut tes USM lagi!</div>
+      </div>
+      <div class="jalur-card-p">
+        <div class="jico">⚕️</div>
+        <div class="jtitle">Jalur Khusus FK</div>
+        <div class="jdesc">Mau jadi dokter? Jalur ini khusus untuk Pendidikan Dokter UNPAS</div>
+      </div>
+      <div class="jalur-card-p">
+        <div class="jico">💼</div>
+        <div class="jtitle">RPL Perolehan</div>
+        <div class="jdesc">Pengalaman kerjamu dihargai jadi SKS — raih gelar S1 lebih cepat!</div>
+      </div>
+      <div class="jalur-card-p">
+        <div class="jico">🔄</div>
+        <div class="jtitle">RPL Transfer</div>
+        <div class="jdesc">Lulusan D1/D2/D3? Lanjut S1 dengan konversi SKS dari prodi asalmu!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ SLIDE 7: FAKULTAS ════ -->
+  <div class="slide" id="s7">
+    <div class="p-title">
+      <h2>8 Fakultas &amp; <span>43 Program Studi</span></h2>
+    </div>
+    <div class="fak-grid-p">
+
+      <div class="fak-row-p">
+        <div class="fak-card-p" style="border-left-color:var(--fh)">
+          <div class="fc-header">
+            <div class="fc-initial" style="color:var(--fh)">FH</div>
+            <div class="fc-name">Fakultas Hukum</div>
+          </div>
+          <div class="fc-prodi-list-p">
+            <div class="fc-prodi-p">Ilmu Hukum</div>
+          </div>
+        </div>
+        <div class="fak-card-p" style="border-left-color:var(--fisip)">
+          <div class="fc-header">
+            <div class="fc-initial" style="color:var(--fisip)">FISIP</div>
+            <div class="fc-name">Fakultas Ilmu Sosial &amp; Ilmu Politik</div>
+          </div>
+          <div class="fc-prodi-list-p">
+            <div class="fc-prodi-p">Administrasi Publik</div>
+            <div class="fc-prodi-p">Ilmu Kesejahteraan Sosial</div>
+            <div class="fc-prodi-p">Ilmu Hubungan Internasional</div>
+            <div class="fc-prodi-p">Ilmu Administrasi Bisnis</div>
+            <div class="fc-prodi-p">Ilmu Komunikasi</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fak-row-p">
+        <div class="fak-card-p" style="border-left-color:var(--ft)">
+          <div class="fc-header">
+            <div class="fc-initial" style="color:var(--ft)">FT</div>
+            <div class="fc-name">Fakultas Teknik</div>
+          </div>
+          <div class="fc-prodi-list-p">
+            <div class="fc-prodi-p">Teknik Industri</div>
+            <div class="fc-prodi-p">Teknologi Pangan</div>
+            <div class="fc-prodi-p">Teknik Mesin</div>
+            <div class="fc-prodi-p">Teknik Informatika</div>
+            <div class="fc-prodi-p">Teknik Lingkungan</div>
+            <div class="fc-prodi-p">Perencanaan Wilayah dan Kota</div>
+          </div>
+        </div>
+        <div class="fak-card-p" style="border-left-color:var(--feb)">
+          <div class="fc-header">
+            <div class="fc-initial" style="color:#b8960a">FEB</div>
+            <div class="fc-name">Fakultas Ekonomi &amp; Bisnis</div>
+          </div>
+          <div class="fc-prodi-list-p">
+            <div class="fc-prodi-p">Manajemen</div>
+            <div class="fc-prodi-p">Akuntansi</div>
+            <div class="fc-prodi-p">Ekonomi Pembangunan</div>
+            <div class="fc-prodi-p">Bisnis Digital</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fak-row-p">
+        <div class="fak-card-p" style="border-left-color:var(--fkip)">
+          <div class="fc-header">
+            <div class="fc-initial" style="color:var(--fkip)">FKIP</div>
+            <div class="fc-name">Fakultas Keguruan &amp; Ilmu Pendidikan</div>
+          </div>
+          <div class="fc-prodi-list-p">
+            <div class="fc-prodi-p">Pendidikan Pancasila dan Kewarganegaraan</div>
+            <div class="fc-prodi-p">Pendidikan Ekonomi</div>
+            <div class="fc-prodi-p">Pendidikan Bahasa dan Sastra Indonesia</div>
+            <div class="fc-prodi-p">Pendidikan Biologi</div>
+            <div class="fc-prodi-p">Pendidikan Matematika</div>
+            <div class="fc-prodi-p">Pendidikan Guru Sekolah Dasar</div>
+          </div>
+        </div>
+        <div class="fak-card-p" style="border-left-color:var(--fiss)">
+          <div class="fc-header">
+            <div class="fc-initial" style="color:var(--fiss)">FISS</div>
+            <div class="fc-name">Fakultas Ilmu Seni &amp; Sastra</div>
+          </div>
+          <div class="fc-prodi-list-p">
+            <div class="fc-prodi-p">Desain Komunikasi Visual</div>
+            <div class="fc-prodi-p">Fotografi</div>
+            <div class="fc-prodi-p">Seni Musik</div>
+            <div class="fc-prodi-p">Sastra Inggris</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fak-row-p">
+        <div class="fak-card-p" style="border-left-color:var(--fk)">
+          <div class="fc-header">
+            <div class="fc-initial" style="color:var(--fk)">FK</div>
+            <div class="fc-name">Fakultas Kedokteran</div>
+          </div>
+          <div class="fc-prodi-list-p">
+            <div class="fc-prodi-p">Kedokteran (S1)</div>
+            <div class="fc-prodi-p">Profesi Dokter</div>
+          </div>
+        </div>
+        <div class="fak-card-p" style="border-left-color:var(--pasca)">
+          <div class="fc-header">
+            <div class="fc-initial" style="color:var(--pasca)">PPS</div>
+            <div class="fc-name">Program Pascasarjana</div>
+          </div>
+          <div class="fc-prodi-list-p">
+            <div class="fc-prodi-p">Magister Manajemen</div>
+            <div class="fc-prodi-p">Magister Akuntansi</div>
+            <div class="fc-prodi-p">Magister Teknik Industri</div>
+            <div class="fc-prodi-p">Magister Teknik Mesin</div>
+            <div class="fc-prodi-p">Magister Ilmu Hukum</div>
+            <div class="fc-prodi-p">Magister Kenotariatan</div>
+            <div class="fc-prodi-p">Magister Teknologi Pangan</div>
+            <div class="fc-prodi-p">Magister Ilmu Komunikasi</div>
+            <div class="fc-prodi-p">Magister Administrasi dan Kebijakan Publik</div>
+            <div class="fc-prodi-p">Magister Pendidikan Matematika</div>
+            <div class="fc-prodi-p">Magister Pendidikan Bahasa dan Sastra Indonesia</div>
+            <div class="fc-prodi-p">Doktor Ilmu Manajemen</div>
+            <div class="fc-prodi-p">Doktor Ilmu Sosial</div>
+            <div class="fc-prodi-p">Doktor Ilmu Hukum</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════ SLIDE 8: CARA DAFTAR ════ -->
+  <div class="slide" id="s8">
+    <div class="p-title">
+      <h2>Cara Mendaftar — <span>5 Langkah</span> Mudah</h2>
+    </div>
+    <div class="cara-list-p">
+      <div class="cara-step-p">
+        <div class="csn-p">1</div>
+        <div class="csi-p">🌐</div>
+        <div class="cst-p">
+          <div class="csh-p">Kunjungi Website PMB</div>
+          <div class="csp-p">Buka pmb.unpas.ac.id di browser kamu</div>
+        </div>
+      </div>
+      <div class="cara-step-p">
+        <div class="csn-p">2</div>
+        <div class="csi-p">🗂️</div>
+        <div class="cst-p">
+          <div class="csh-p">Pilih Jalur Pendaftaran</div>
+          <div class="csp-p">Tentukan jalur masuk sesuai pilihan dan ketentuan kampus</div>
+        </div>
+      </div>
+      <div class="cara-step-p">
+        <div class="csn-p">3</div>
+        <div class="csi-p">📝</div>
+        <div class="cst-p">
+          <div class="csh-p">Isi Formulir Pendaftaran</div>
+          <div class="csp-p">Lengkapi data diri pada formulir secara benar</div>
+        </div>
+      </div>
+      <div class="cara-step-p">
+        <div class="csn-p">4</div>
+        <div class="csi-p">💳</div>
+        <div class="cst-p">
+          <div class="csh-p">Bayar Biaya Pendaftaran</div>
+          <div class="csp-p">Lakukan pembayaran sesuai petunjuk yang tersedia</div>
+        </div>
+      </div>
+      <div class="cara-step-p">
+        <div class="csn-p">5</div>
+        <div class="csi-p">📤</div>
+        <div class="cst-p">
+          <div class="csh-p">Unggah Berkas &amp; Ikuti Seleksi</div>
+          <div class="csp-p">Kirim dokumen dan ikuti tahapan seleksi sesuai jadwal</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ SLIDE 9: CTA ════ -->
+  <div class="slide" id="s9">
+    <div class="cta-tag">Daftar Sekarang · Pendaftaran Online 24 Jam</div>
+    <h2>Wujudkan <span>Impianmu</span><br>Bersama UNPAS</h2>
+    <div class="cta-sub">Kunjungi website PMB atau hubungi tim kami untuk informasi lebih lanjut</div>
+    <div class="qr-row-p">
+
+      <div class="qr-card-p">
+        <div class="qr-badge pmb">🌐 Website PMB UNPAS</div>
+        <img src="https://lh3.googleusercontent.com/d/1HsyhebdfvmKDNU0Pd-Tzpf8hGg9oimdD" class="qr-img" alt="QR PMB UNPAS"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="qr-fallback-p">
+          <div class="qf-icon">🌐</div>
+          <div class="qf-main">pmb.unpas.ac.id</div>
+          <div class="qf-hint">Buka di browser untuk mendaftar</div>
+        </div>
+      </div>
+
+      <div class="qr-card-p">
+        <div class="qr-badge wa">💬 Hotline UNPAS</div>
+        <img src="https://lh3.googleusercontent.com/d/1c9IZlI9BKdHYZosNJcaLtwZGZ9fmM2Le" class="qr-img" alt="QR Hotline UNPAS"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="qr-fallback-p">
+          <div class="qf-icon">💬</div>
+          <div class="qf-main">+62 811-960-193</div>
+          <div class="qf-hint">Hubungi via WhatsApp</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /.slides-wrap -->
+
+<!-- ── FOOTER ── -->
+<footer class="tv-progress">
+  <div class="slide-counter">© 2026 Universitas Pasundan</div>
+</footer>
+
+<script>
+  /* ES5 — kompatibel Android 4+ WebView */
+
+  /* CLOCK + DATE — setInterval, tidak pakai rAF */
+  var _DAYS   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  var _MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli',
+                 'Agustus','September','Oktober','November','Desember'];
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function updateClock() {
+    try {
+      var now  = new Date();
+      document.getElementById('clock').textContent =
+        pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
+      document.getElementById('dt-date').textContent =
+        _DAYS[now.getDay()] + ', ' + now.getDate() + ' ' +
+        _MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+    } catch (e) {}
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  /* SLIDER */
+  var SLIDE_IDS       = ['s1','s2','s7','s3','s8','s9'];
+  var SLIDE_DURATIONS = [8000, 7000, 9000, 8000, 9000, 9000];
+  var total   = SLIDE_IDS.length;
+  var current = 0;
+  var timer   = null;
+
+  function goToSlide(idx) {
+    document.getElementById(SLIDE_IDS[current]).classList.remove('active');
+    current = (idx + total) % total;
+    document.getElementById(SLIDE_IDS[current]).classList.add('active');
+    clearTimeout(timer);
+    timer = setTimeout(function() { goToSlide(current + 1); }, SLIDE_DURATIONS[current]);
+  }
+  goToSlide(0);
+
+  /* Dev nav (hidden) */
+  document.getElementById('btn-prev').addEventListener('click', function() { clearTimeout(timer); goToSlide(current - 1); });
+  document.getElementById('btn-next').addEventListener('click', function() { clearTimeout(timer); goToSlide(current + 1); });
+
+  /* Invisible touch zones */
+  document.getElementById('zone-prev').addEventListener('click', function() { clearTimeout(timer); goToSlide(current - 1); });
+  document.getElementById('zone-next').addEventListener('click', function() { clearTimeout(timer); goToSlide(current + 1); });
+
+  /* Logo header → kembali ke slide 1 */
+  document.querySelector('.tv-header .logo').addEventListener('click', function() { clearTimeout(timer); goToSlide(0); });
+</script>
+</body>
+</html>
