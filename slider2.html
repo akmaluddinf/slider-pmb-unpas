@@ -341,7 +341,7 @@
       padding-left: 4px; overflow: hidden;
     }
     .fak-card-p .fc-prodi-p {
-      font-size: 1.1vh; font-size: clamp(.6rem, 1.1vh, .85rem); color: var(--p3);
+      font-size: 1.1vh; font-size: clamp(.6rem, 1.1vh, .85rem); color: var(--p0);
       line-height: 1.35; padding-left: 8px; position: relative;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
@@ -465,9 +465,14 @@
       .cara-list-p { justify-content: flex-start; }
       /* Jalur: grid bisa scroll */
       .jalur-grid-p { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-      /* Fakultas: row auto-height agar PPS tampil penuh, grid bisa scroll */
-      .fak-row-p { flex: none; }
-      .fak-card-p { overflow: visible; }
+      /* Fakultas: row auto-height, center vertikal, scale proporsional — fit dari 768px+ */
+      .fak-grid-p { justify-content: center; gap: clamp(14px, 2vh, 28px); padding: clamp(16px, 2.2vh, 36px) 6vw; }
+      .fak-row-p { flex: none; gap: clamp(16px, 3vw, 40px); }
+      .fak-card-p { overflow: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: clamp(14px, 1.9vh, 26px) clamp(16px, 2.5vw, 28px); gap: clamp(6px, 0.8vh, 12px); }
+      .fak-card-p .fc-initial { font-size: clamp(1.5rem, 3.2vh, 2.4rem); }
+      .fak-card-p .fc-name { font-size: clamp(0.9rem, 1.5vh, 1.3rem); }
+      .fak-card-p .fc-prodi-list-p { gap: clamp(3px, 0.4vh, 5px); }
+      .fak-card-p .fc-prodi-p { font-size: clamp(0.8rem, 1.2vh, 1rem); line-height: 1.5; }
     }
     .qr-fallback-p .qf-main {
       font-size: 2vh; font-size: clamp(.9rem, 2vh, 1.3rem); font-weight: 800; color: var(--p1);
@@ -476,6 +481,13 @@
     .qr-fallback-p .qf-hint {
       font-size: .65rem; color: var(--p4); text-align: center;
       padding: 0 10px; line-height: 1.4;
+    }
+
+    /* ══ PORTRAIT WIDE (signage 1080×1920, tablet portrait ≥ 481px) ══
+       Tanpa ini, fak-row-p { flex:1 } dari base CSS membuat row setinggi setengah layar. */
+    @media (orientation: portrait) and (min-width: 481px) {
+      .fak-grid-p { justify-content: center; }
+      .fak-row-p  { flex: none; }
     }
 
     /* ══ HANDPHONE PORTRAIT (≤ 480px) ══
